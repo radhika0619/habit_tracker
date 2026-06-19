@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Habit Tracker</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom, #020617, #071132);
+      color: white;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .bg1,
+    .bg2 {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      z-index: -1;
+    }
+
+    .bg1 {
+      width: 350px;
+      height: 350px;
+      background: rgba(255, 0, 128, 0.25);
+      top: -120px;
+      left: -120px;
+    }
+
+    .bg2 {
+      width: 350px;
+      height: 350px;
+      background: rgba(0, 140, 255, 0.2);
+      bottom: -120px;
+      right: -120px;
+    }
+
+    .container {
+      width: min(100% - 32px, 1050px);
+      margin: 0 auto;
+      padding: 50px 0 70px;
+    }
+
+    .auth-box {
+      max-width: 430px;
+      margin: 80px auto;
+      padding: 34px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 0 30px rgba(255, 77, 141, 0.1);
+    }
+
+    .auth-box h2 {
+      color: #ff4d8d;
+      margin-top: 0;
+      margin-bottom: 24px;
+      font-size: 32px;
+    }
+
+    .auth-box input {
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    .auth-box button {
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    .auth-box p {
+      color: #94a3b8;
+      margin-bottom: 0;
+    }
+
+    .link-btn {
+      width: auto !important;
+      padding: 0;
+      background: transparent;
+      box-shadow: none;
+      color: #ff4d8d;
+    }
+
+    .link-btn:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
+    .quote-box,
+    .stat-card,
+    .habit,
+    .chart-card,
+    .empty-state {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 0 25px rgba(255, 77, 141, 0.08);
+    }
+
+    .quote-box {
+      margin-bottom: 30px;
+      padding: 18px 22px;
+      border-radius: 18px;
+      color: #d1d5db;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      color: #ff4d8d;
+      font-size: 56px;
+      line-height: 1;
+      margin: 0;
+      font-weight: 700;
+      text-shadow: 0 0 25px rgba(255, 77, 141, 0.4);
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      min-height: 120px;
+      padding: 25px;
+      border-radius: 22px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .stat-card h2 {
+      margin: 0;
+      color: #ff4d8d;
+      font-size: 36px;
+    }
+
+    .stat-card p {
+      margin-top: 10px;
+      color: #94a3b8;
+      font-size: 15px;
+    }
+
+    .input-box {
+      display: grid;
+      grid-template-columns: 1fr 240px auto;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 240px;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    input,
+    select {
+      min-width: 0;
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.06);
+      color: white;
+      font-size: 16px;
+      outline: none;
+      backdrop-filter: blur(10px);
+    }
+
+    select option {
+      background: #020617;
+      color: white;
+    }
+
+    input::placeholder {
+      color: #94a3b8;
+    }
+
+    button {
+      padding: 14px 22px;
+      border: none;
+      border-radius: 16px;
+      background: #ff4d8d;
+      color: white;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      transition: 0.25s;
+      box-shadow: 0 0 20px rgba(255, 77, 141, 0.25);
+    }
+
+    button:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 0 30px rgba(255, 77, 141, 0.45);
+    }
+
+    #themeToggle {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      padding: 0;
+    }
+
+    .habit {
+      padding: 24px;
+      margin-bottom: 22px;
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      animation: slideUp 0.5s ease;
+    }
+
+    .habit::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(to right, #ff4d8d, transparent);
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    .tag {
+      background: rgba(255, 77, 141, 0.15);
+      color: #ff4d8d;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .streak {
+      color: #94a3b8;
+      margin-top: 8px;
+      font-size: 15px;
+    }
+
+    .badge {
+      margin-top: 10px;
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 77, 141, 0.12);
+      color: #ff9fc1;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .calendar {
+      display: flex;
+      gap: 8px;
+      margin: 14px 0;
+      flex-wrap: wrap;
+    }
+
+    .day-wrap {
+      text-align: center;
+    }
+
+    .day-label {
+      font-size: 10px;
+      color: #94a3b8;
+      margin-bottom: 5px;
+    }
+
+    .day-box {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .day-box.active {
+      background: #ff4d8d;
+      box-shadow: 0 0 10px rgba(255,77,141,0.6);
+    }
+
+    .btns {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .progress-bar {
+      height: 12px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .progress {
+      height: 100%;
+      background: linear-gradient(to right, #ff4d8d, #ff80b3);
+      border-radius: 20px;
+      box-shadow: 0 0 12px #ff4d8d;
+    }
+
+    .chart-card {
+      margin-top: 28px;
+      padding: 25px;
+      border-radius: 24px;
+    }
+
+    .chart-card h2 {
+      margin-top: 0;
+      margin-bottom: 30px;
+      color: #ff4d8d;
+    }
+
+    .chart {
+      height: 190px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .bar-column {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bar-count {
+      color: #d1d5db;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .bar {
+      width: 100%;
+      min-height: 6px;
+      border-radius: 14px 14px 0 0;
+      background: linear-gradient(to top, #ff4d8d, #ff8ab5);
+      box-shadow: 0 0 18px rgba(255,77,141,0.4);
+    }
+
+    .days {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+      color: #94a3b8;
+    }
+
+    .empty-state {
+      padding: 25px;
+      border-radius: 20px;
+      color: #94a3b8;
+      margin-bottom: 25px;
+    }
+
+    .done-toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      padding: 16px 20px;
+      border-radius: 18px;
+      background: rgba(239, 246, 255, 0.96);
+      color: #0f172a;
+      font-weight: 700;
+      border: 1px solid rgba(147, 197, 253, 0.55);
+      box-shadow: 0 0 30px rgba(147, 197, 253, 0.35);
+      transform: translateY(30px);
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.3s ease;
+      z-index: 9999;
+    }
+
+    .done-toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .light-mode {
+      background: #f8fafc;
+      color: #020617;
+    }
+
+    .light-mode .habit,
+    .light-mode .stat-card,
+    .light-mode .quote-box,
+    .light-mode .chart-card,
+    .light-mode .empty-state,
+    .light-mode .auth-box,
+    .light-mode input,
+    .light-mode select {
+      background: rgba(255,255,255,0.75);
+      color: #020617;
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .light-mode select option {
+      background: white;
+      color: #020617;
+    }
+
+    .light-mode p,
+    .light-mode .days,
+    .light-mode .streak,
+    .light-mode .day-label {
+      color: #475569;
+    }
+
+    @media(max-width: 800px) {
+      .container {
+        width: min(100% - 24px, 100%);
+        padding: 28px 0 50px;
+      }
+
+      .top-bar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      h1 {
+        font-size: 44px;
+      }
+
+      .stats,
+      .input-box,
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .btns {
+        width: 100%;
+      }
+
+      .btns button {
+        flex: 1;
+      }
+    }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+
+<body>
+  <div class="bg1"></div>
+  <div class="bg2"></div>
+
+  <div class="container">
+    <div id="authBox" class="auth-box">
+      <h2 id="authTitle">Login</h2>
+
+      <input id="nameInput" placeholder="Name" style="display:none;" />
+      <input id="emailInput" placeholder="Email" />
+      <input id="passwordInput" type="password" placeholder="Password" />
+
+      <button id="authButton" onclick="handleAuth()">Login</button>
+
+      <p>
+        <span id="authText">Don't have an account?</span>
+        <button class="link-btn" onclick="toggleAuthMode()">Signup</button>
+      </p>
+
+      <p>
+        <button class="link-btn" onclick="showForgotPassword()">Forgot password?</button>
+      </p>
+    </div>
+
+    <div id="forgotBox" class="auth-box" style="display:none;">
+      <h2>Reset Password</h2>
+
+      <input id="forgotEmailInput" placeholder="Email" />
+      <button onclick="sendResetCode()">Send Code</button>
+
+      <input id="resetCodeInput" placeholder="Enter 6-digit code" />
+      <input id="newPasswordInput" type="password" placeholder="New password" />
+
+      <button onclick="resetPassword()">Update Password</button>
+
+      <p>
+        <button class="link-btn" onclick="backToLogin()">Back to login</button>
+      </p>
+    </div>
+
+    <div id="appBox" style="display:none;">
+      <div class="quote-box">
+        <p id="quote">Small progress is still progress.</p>
+      </div>
+
+      <div class="top-bar">
+        <h1>Habit Tracker</h1>
+
+        <div class="top-actions">
+          <button id="themeToggle" onclick="toggleTheme()">Dark</button>
+          <button onclick="logout()">Logout</button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <h2 id="totalHabits">0</h2>
+          <p>Total Habits</p>
+        </div>
+
+        <div class="stat-card">
+          <h2 id="totalStreak">0</h2>
+          <p>Total Streak</p>
+        </div>
+
+        <div class="stat-card">
+          <h2 id="completedToday">0</h2>
+          <p>Completed Today</p>
+        </div>
+      </div>
+
+      <div class="input-box">
+        <input id="habitInput" placeholder="Enter habit..." />
+
+        <select id="categoryInput">
+          <option value="General">General</option>
+          <option value="Productivity">Productivity</option>
+          <option value="Fitness">Fitness</option>
+          <option value="Health">Health</option>
+          <option value="Study">Study</option>
+        </select>
+
+        <button onclick="addHabit()">Add</button>
+      </div>
+
+      <div class="controls">
+        <input id="searchInput" placeholder="Search habits..." oninput="loadHabits()" />
+
+        <select id="sortInput" onchange="loadHabits()">
+          <option value="newest">Newest</option>
+          <option value="streak">Highest Streak</option>
+          <option value="name">Name A-Z</option>
+        </select>
+      </div>
+
+      <div id="habitList"></div>
+
+      <div class="chart-card">
+        <h2>Weekly Progress</h2>
+        <div id="weeklyChart" class="chart"></div>
+        <div id="weeklyLabels" class="days"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="doneToast" class="done-toast">
+    oops rest up! done for the day
+  </div>
+
+  <script>
+    const API = "http://localhost:5000";
+    let isSignup = false;
+    let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+    const quotes = [
+      "Small progress is still progress.",
+      "Discipline creates freedom.",
+      "Show up even on hard days.",
+      "Tiny habits build big results.",
+      "Consistency beats motivation."
+    ];
+
+    function randomQuote() {
+      const random = Math.floor(Math.random() * quotes.length);
+      document.getElementById("quote").innerText = quotes[random];
+    }
+
+    function toDateKey(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function getTodayKey() {
+      return toDateKey(new Date());
+    }
+
+    function getLastSevenDays() {
+      const days = [];
+
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+
+        days.push({
+          key: toDateKey(date),
+          label: date.toLocaleDateString("en-US", { weekday: "short" })[0]
+        });
+      }
+
+      return days;
+    }
+
+    function getCompletionDates(habit) {
+      if (Array.isArray(habit.completionDates)) {
+        return habit.completionDates;
+      }
+
+      if (habit.lastCompleted) {
+        return [toDateKey(new Date(habit.lastCompleted))];
+      }
+
+      return [];
+    }
+
+    function getBadge(streak) {
+      if (streak >= 7) return "7 Day Warrior";
+      if (streak >= 3) return "On Fire";
+      if (streak >= 1) return "Getting Started";
+      return "New Habit";
+    }
+
+    function escapeHTML(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderHabitCalendar(habit) {
+      const completedDates = new Set(getCompletionDates(habit));
+      const days = getLastSevenDays();
+
+      return days.map(day => `
+        <div class="day-wrap" title="${day.key}">
+          <div class="day-label">${day.label}</div>
+          <div class="day-box ${completedDates.has(day.key) ? "active" : ""}"></div>
+        </div>
+      `).join("");
+    }
+
+    function renderWeeklyChart(habits) {
+      const days = getLastSevenDays();
+      const chart = document.getElementById("weeklyChart");
+      const labels = document.getElementById("weeklyLabels");
+
+      chart.innerHTML = "";
+      labels.innerHTML = "";
+
+      days.forEach(day => {
+        const completedCount = habits.filter(habit =>
+          getCompletionDates(habit).includes(day.key)
+        ).length;
+
+        const height = habits.length
+          ? Math.max((completedCount / habits.length) * 100, completedCount > 0 ? 12 : 4)
+          : 4;
+
+        chart.innerHTML += `
+          <div class="bar-column">
+            <div class="bar-count">${completedCount}</div>
+            <div class="bar" style="height: ${height}%"></div>
+          </div>
+        `;
+
+        labels.innerHTML += `<span>${day.label}</span>`;
+      });
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle("light-mode");
+
+      if (document.body.classList.contains("light-mode")) {
+        localStorage.setItem("theme", "light");
+        document.getElementById("themeToggle").innerText = "☼";
+      } else {
+        localStorage.setItem("theme", "dark");
+        document.getElementById("themeToggle").innerText = "☾";
+      }
+    }
+
+    function showForgotPassword() {
+      document.getElementById("authBox").style.display = "none";
+      document.getElementById("forgotBox").style.display = "block";
+      document.getElementById("appBox").style.display = "none";
+    }
+
+    function backToLogin() {
+      document.getElementById("forgotBox").style.display = "none";
+      document.getElementById("authBox").style.display = "block";
+      document.getElementById("appBox").style.display = "none";
+    }
+
+    async function sendResetCode() {
+      const email = document.getElementById("forgotEmailInput").value.trim();
+
+      if (!email) {
+        alert("Enter your email first");
+        return;
+      }
+
+      const res = await fetch(API + "/forgot-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Something went wrong");
+        return;
+      }
+
+      alert("Reset code sent to your email");
+    }
+
+    async function resetPassword() {
+      const email = document.getElementById("forgotEmailInput").value.trim();
+      const resetCode = document.getElementById("resetCodeInput").value.trim();
+      const newPassword = document.getElementById("newPasswordInput").value.trim();
+
+      if (!email || !resetCode || !newPassword) {
+        alert("Email, code, and new password are required");
+        return;
+      }
+
+      const res = await fetch(API + "/reset-password", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, resetCode, newPassword })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Something went wrong");
+        return;
+      }
+
+      alert(data.message);
+
+      document.getElementById("forgotEmailInput").value = "";
+      document.getElementById("resetCodeInput").value = "";
+      document.getElementById("newPasswordInput").value = "";
+
+      backToLogin();
+    }
+
+    function updateAuthView() {
+      const authBox = document.getElementById("authBox");
+      const forgotBox = document.getElementById("forgotBox");
+      const appBox = document.getElementById("appBox");
+
+      if (currentUser) {
+        authBox.style.display = "none";
+        forgotBox.style.display = "none";
+        appBox.style.display = "block";
+        randomQuote();
+        loadHabits();
+      } else {
+        authBox.style.display = "block";
+        forgotBox.style.display = "none";
+        appBox.style.display = "none";
+      }
+    }
+
+    function toggleAuthMode() {
+      isSignup = !isSignup;
+
+      document.getElementById("authTitle").innerText = isSignup ? "Signup" : "Login";
+      document.getElementById("nameInput").style.display = isSignup ? "block" : "none";
+      document.getElementById("authButton").innerText = isSignup ? "Signup" : "Login";
+
+      document.getElementById("authText").innerText = isSignup
+        ? "Already have an account?"
+        : "Don't have an account?";
+
+      document.querySelector(".link-btn").innerText = isSignup ? "Login" : "Signup";
+    }
+
+    async function handleAuth() {
+      const name = document.getElementById("nameInput").value.trim();
+      const email = document.getElementById("emailInput").value.trim();
+      const password = document.getElementById("passwordInput").value.trim();
+
+      if (!email || !password) {
+        alert("Email and password are required");
+        return;
+      }
+
+      if (isSignup && !name) {
+        alert("Name is required");
+        return;
+      }
+
+      const route = isSignup ? "/signup" : "/login";
+      const body = isSignup ? { name, email, password } : { email, password };
+
+      const res = await fetch(API + route, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Something went wrong");
+        return;
+      }
+
+      currentUser = data.user;
+      localStorage.setItem("currentUser", JSON.stringify(currentUser));
+
+      document.getElementById("nameInput").value = "";
+      document.getElementById("emailInput").value = "";
+      document.getElementById("passwordInput").value = "";
+
+      updateAuthView();
+    }
+
+    function logout() {
+      localStorage.removeItem("currentUser");
+      currentUser = null;
+      updateAuthView();
+    }
+
+    async function loadHabits() {
+      if (!currentUser) return;
+
+      const res = await fetch(API + "/habits?userId=" + currentUser.id);
+      const allHabits = await res.json();
+
+      document.getElementById("totalHabits").innerText = allHabits.length;
+
+      const totalStreak = allHabits.reduce((sum, habit) => {
+        return sum + (habit.streak || 0);
+      }, 0);
+
+      document.getElementById("totalStreak").innerText = totalStreak;
+
+      const completedToday = allHabits.filter(habit => {
+        return getCompletionDates(habit).includes(getTodayKey());
+      }).length;
+
+      document.getElementById("completedToday").innerText = completedToday;
+
+      const search = document.getElementById("searchInput").value.toLowerCase();
+      const sort = document.getElementById("sortInput").value;
+
+      let data = allHabits.filter(habit =>
+        habit.name.toLowerCase().includes(search)
+      );
+
+      if (sort === "streak") {
+        data.sort((a, b) => (b.streak || 0) - (a.streak || 0));
+      }
+
+      if (sort === "name") {
+        data.sort((a, b) => a.name.localeCompare(b.name));
+      }
+
+      const list = document.getElementById("habitList");
+      list.innerHTML = "";
+
+      if (data.length === 0) {
+        list.innerHTML = `<div class="empty-state">No habits found.</div>`;
+      }
+
+      data.forEach(habit => {
+        const safeName = escapeHTML(habit.name);
+        const encodedName = encodeURIComponent(habit.name);
+        const category = habit.category || "General";
+        const streak = habit.streak || 0;
+        const progressPercent = Math.min(streak * 10, 100);
+        const badge = getBadge(streak);
+
+        list.innerHTML += `
+          <div class="habit">
+            <div class="row">
+              <div>
+                <div class="title-row">
+                  <h3>${safeName}</h3>
+                  <span class="tag">${category}</span>
+                </div>
+
+                <div class="streak">${streak} day streak</div>
+                <div class="badge">${badge}</div>
+
+                <div class="calendar">
+                  ${renderHabitCalendar(habit)}
+                </div>
+              </div>
+
+              <div class="btns">
+                <button onclick="completeHabit('${habit._id}')">Done</button>
+                <button onclick="editHabit('${habit._id}', decodeURIComponent('${encodedName}'))">Edit</button>
+                <button onclick="deleteHabit('${habit._id}')">X</button>
+              </div>
+            </div>
+
+            <div class="progress-bar">
+              <div class="progress" style="width: ${progressPercent}%"></div>
+            </div>
+          </div>
+        `;
+      });
+
+      renderWeeklyChart(allHabits);
+    }
+
+    async function addHabit() {
+      const input = document.getElementById("habitInput");
+      const category = document.getElementById("categoryInput").value;
+      const name = input.value.trim();
+
+      if (!name || !currentUser) return;
+
+      await fetch(API + "/habits", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name,
+          category,
+          userId: currentUser.id
+        })
+      });
+
+      input.value = "";
+      document.getElementById("categoryInput").value = "General";
+      loadHabits();
+    }
+
+    async function deleteHabit(id) {
+      await fetch(API + "/delete/" + id);
+      loadHabits();
+    }
+
+    async function editHabit(id, oldName) {
+      const newName = prompt("Edit your habit:", oldName);
+
+      if (!newName || newName.trim() === "") return;
+
+      await fetch(API + "/edit/" + id, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: newName.trim()
+        })
+      });
+
+      loadHabits();
+    }
+
+    function celebrate() {
+      confetti({
+        particleCount: 120,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }
+
+    function showDoneToast() {
+      const toast = document.getElementById("doneToast");
+
+      if (!toast) return;
+
+      toast.classList.add("show");
+
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2500);
+    }
+
+    async function completeHabit(id) {
+      await fetch(API + "/complete/" + id);
+      celebrate();
+      showDoneToast();
+      loadHabits();
+    }
+
+    const savedTheme = localStorage.getItem("theme");
+
+    if (savedTheme === "light") {
+      document.body.classList.add("light-mode");
+      document.getElementById("themeToggle").innerText = "Light";
+    }
+
+    updateAuthView();
+  </script>
+</body>
+</html>
