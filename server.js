@@ -6,8 +6,8 @@ const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 
-const Habit = require("./Habit");
-const User = require("./User");
+const Habit = require("./habit");
+const User = require("./user");
 
 const app = express();
 
