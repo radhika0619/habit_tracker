@@ -1062,19 +1062,25 @@ a
       }, 2500);
     }
 
-    async function completeHabit(id) {
-     await fetch(API + "/complete/" + id, {
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`
-  }
-});
+  async function completeHabit(id) {
+  console.log("habit id:", id);
+
+  await fetch(API + "/complete/" + id, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`
+    }
+  });
+
+  celebrate();
+  showDoneToast();
+  loadHabits();
 }
 
     const savedTheme = localStorage.getItem("theme");
 
     if (savedTheme === "light") {
       document.body.classList.add("light-mode");
-      document.getElementById("themeToggle").innerText = "Light";
+      document.getElementById("themeToggle").innerText = "☼";
     }
 
     updateAuthView();
