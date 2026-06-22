@@ -900,10 +900,16 @@ localStorage.setItem("currentUser", JSON.stringify(currentUser));
     async function loadHabits() {
       if (!currentUser) return;
 
-      const res = await fetch(API + "/habits?userId=" + currentUser.id);
+      const res = await fetch(API + "/habits?userId=" + currentUser.id, {
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`
+  }
+});
       const allHabits = await res.json();
+      console.log("Response:", allHabits);
 
-      document.getElementById("totalHabits").innerText = allHabits.length;
+      document.getElementById("totalHabits").innerText =
+      Array.isArray(allHabits) ? allHabits.length : "ERR";
 
       const totalStreak = allHabits.reduce((sum, habit) => {
         return sum + (habit.streak || 0);
@@ -980,50 +986,54 @@ localStorage.setItem("currentUser", JSON.stringify(currentUser));
 
       renderWeeklyChart(allHabits);
     }
-
+a
     async function addHabit() {
-      const input = document.getElementById("habitInput");
-      const category = document.getElementById("categoryInput").value;
-      const name = input.value.trim();
+  const input = document.getElementById("habitInput");
+  const category = document.getElementById("categoryInput").value;
+  const name = input.value.trim();
 
-      if (!name || !currentUser) return;
+  if (!name || !currentUser) return;
 
-      await fetch(API + "/habits", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          name,
-          category,
-          userId: currentUser.id
-        })
-      });
+  await fetch(API + "/habits", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`
+    },
+    body: JSON.stringify({
+      name,
+      category,
+      userId: currentUser.id
+    })
+  });
 
-      input.value = "";
-      document.getElementById("categoryInput").value = "General";
-      loadHabits();
-    }
+  input.value = "";
+  document.getElementById("categoryInput").value = "General";
+  loadHabits();
+}
 
     async function deleteHabit(id) {
-      await fetch(API + "/delete/" + id);
-      loadHabits();
+  await fetch(API + "/delete/" + id, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`
     }
+  });
+
+  loadHabits();
+}
 
     async function editHabit(id, oldName) {
       const newName = prompt("Edit your habit:", oldName);
 
       if (!newName || newName.trim() === "") return;
-
-      await fetch(API + "/edit/" + id, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          name: newName.trim()
-        })
-      });
+     await fetch(API + "/edit/" + id, {
+    method: "PUT",
+    headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`
+  },
+  body: JSON.stringify(...)
+});
 
       loadHabits();
     }
@@ -1049,11 +1059,12 @@ localStorage.setItem("currentUser", JSON.stringify(currentUser));
     }
 
     async function completeHabit(id) {
-      await fetch(API + "/complete/" + id);
-      celebrate();
-      showDoneToast();
-      loadHabits();
-    }
+     await fetch(API + "/complete/" + id, {
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`
+  }
+});
+}
 
     const savedTheme = localStorage.getItem("theme");
 
