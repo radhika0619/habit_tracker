@@ -12,22 +12,7 @@ const User = require("./user");
 
 const app = express();
 
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  "http://localhost:5173",  // for local Vite dev
-  "http://localhost:3000"   // for local React dev
-].filter(Boolean);
-
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Blocked by CORS"));
-    }
-  },
-  credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 
 const transporter = nodemailer.createTransport({
