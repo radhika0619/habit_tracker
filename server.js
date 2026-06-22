@@ -1,5 +1,5 @@
 require("dotenv").config();
-
+const jwt = require("jsonwebtoken");
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -12,7 +12,22 @@ const User = require("./user");
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "http://localhost:5173",  // for local Vite dev
+  "http://localhost:3000"   // for local React dev
+].filter(Boolean);
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Blocked by CORS"));
+    }
+  },
+  credentials: true
+}));
 app.use(express.json());
 
 const transporter = nodemailer.createTransport({
@@ -23,9 +38,28 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-mongoose.connect(process.env.MONGO_URL)
-  .then(() => console.log("MongoDB connected"))
-  .catch(err => console.log(err));
+  mongoose.connect(process.env.MONGO_URL)
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch(err => {
+    console.error("❌ MONGO CONNECTION FAILED:", err.message);
+    process.exit(1);   
+  });
+
+  function authMiddleware(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
+}
+
 
 app.get("/", (req, res) => {
   res.send("Server is working");
@@ -90,14 +124,21 @@ app.post("/login", async (req, res) => {
       });
     }
 
-    res.json({
-      message: "Login successful",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email
-      }
-    });
+    const token = jwt.sign(
+  { id: user._id, email: user.email },
+  process.env.JWT_SECRET,
+  { expiresIn: "7d" }
+);
+
+res.json({
+  message: "Login successful",
+  token,
+  user: {
+    id: user._id,
+    name: user.name,
+    email: user.email
+  }
+});
   } catch (err) {
     console.error("LOGIN ERROR:", err);
 
@@ -169,7 +210,7 @@ app.put("/reset-password", async (req, res) => {
   res.json({ message: "Password updated successfully. Please login." });
 });
 
-app.post("/habits", async (req, res) => {
+app.post("/habits", authMiddleware, async (req, res) => {
   const habit = new Habit({
     name: req.body.name,
     category: req.body.category || "General",
@@ -180,17 +221,17 @@ app.post("/habits", async (req, res) => {
   res.json(habit);
 });
 
-app.get("/habits", async (req, res) => {
+app.get("/habits", authMiddleware, async (req, res) => {
   const habits = await Habit.find({ userId: req.query.userId });
   res.json(habits);
 });
 
-app.get("/delete/:id", async (req, res) => {
+app.get("/delete/:id", authMiddleware, async (req, res) => {
   await Habit.findByIdAndDelete(req.params.id);
   res.send("Habit deleted");
 });
 
-app.get("/complete/:id", async (req, res) => {
+app.get("/complete/:id", authMiddleware, async (req, res) => {
   const habit = await Habit.findById(req.params.id);
 
   if (!habit) {
@@ -227,7 +268,7 @@ app.get("/complete/:id", async (req, res) => {
   res.json(habit);
 });
 
-app.put("/edit/:id", async (req, res) => {
+app.put("/edit/:id", authMiddleware, async (req, res) => {
   const updatedHabit = await Habit.findByIdAndUpdate(
     req.params.id,
     {
@@ -240,4 +281,5 @@ app.put("/edit/:id", async (req, res) => {
   res.json(updatedHabit);
 });
 
-app.listen(5000, () => console.log("Server running on port 5000"));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

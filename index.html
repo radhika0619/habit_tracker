@@ -875,8 +875,13 @@
         return;
       }
 
-      currentUser = data.user;
-      localStorage.setItem("currentUser", JSON.stringify(currentUser));
+     currentUser = data.user;
+
+if (!isSignup && data.token) {
+  localStorage.setItem("token", data.token);
+}
+
+localStorage.setItem("currentUser", JSON.stringify(currentUser));
 
       document.getElementById("nameInput").value = "";
       document.getElementById("emailInput").value = "";
@@ -885,11 +890,12 @@
       updateAuthView();
     }
 
-    function logout() {
-      localStorage.removeItem("currentUser");
-      currentUser = null;
-      updateAuthView();
-    }
+   function logout() {
+  localStorage.removeItem("currentUser");
+  localStorage.removeItem("token");
+  currentUser = null;
+  updateAuthView();
+}
 
     async function loadHabits() {
       if (!currentUser) return;
