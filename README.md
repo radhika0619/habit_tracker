@@ -36,6 +36,7 @@ A full-stack habit tracking web application built using HTML, CSS, JavaScript, N
 
 * Git
 * GitHub
+* Deployed frontend on Netlify and backend on Render.
 
 ## Future Improvements
 
@@ -44,6 +45,7 @@ A full-stack habit tracking web application built using HTML, CSS, JavaScript, N
 * Better analytics dashboard
 * Mobile optimization
 * Habit categories with filters
+
 
 ## Author
 
