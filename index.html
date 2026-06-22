@@ -1022,21 +1022,25 @@ a
   loadHabits();
 }
 
-    async function editHabit(id, oldName) {
-      const newName = prompt("Edit your habit:", oldName);
+  async function editHabit(id, oldName) {
+  const newName = prompt("Edit your habit:", oldName);
 
-      if (!newName || newName.trim() === "") return;
-     await fetch(API + "/edit/" + id, {
+  if (!newName || newName.trim() === "") return;
+
+  await fetch(API + "/edit/" + id, {
     method: "PUT",
     headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${localStorage.getItem("token")}`
-  },
-  body: JSON.stringify(...)
-});
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`
+    },
+    body: JSON.stringify({
+      name: newName,
+      category: "General"
+    })
+  });
 
-      loadHabits();
-    }
+  loadHabits();
+}
 
     function celebrate() {
       confetti({
